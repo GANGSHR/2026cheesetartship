@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>苷舍＿半熟乳酪塔宅配表單</title>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@300;400;500;700&family=Noto+Sans+TC:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #F7F3EE;
+    --warm-white: #FFFFFF;
+    --brown-dark: #3A2A1E;
+    --brown-mid: #7A5C42;
+    --brown-pale: #C4A882;
+    --caramel: #9B7355;
+    --sand: #E8DDD0;
+    --sand-light: #F5EFE6;
+    --red-accent: #A84040;
+    --shadow: rgba(58,42,30,0.08);
+  }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:#F8F4EF; font-family:'Noto Sans TC',sans-serif; color:var(--brown-dark); min-height:100vh; }
+
+  .header { background:linear-gradient(160deg,#fff 0%,#F5EFE6 100%); padding:32px 20px 28px; text-align:center; position:relative; overflow:hidden; border-bottom:2px solid var(--sand); }
+  .header::before { content:''; position:absolute; top:-40px; left:-40px; width:160px; height:160px; border:1px solid rgba(155,115,85,0.15); border-radius:50%; }
+  .header::after { content:''; position:absolute; bottom:-60px; right:-30px; width:200px; height:200px; border:1px solid rgba(155,115,85,0.1); border-radius:50%; }
+  .brand { font-family:'Noto Serif TC',serif; font-size:13px; letter-spacing:6px; color:var(--brown-mid); margin-bottom:8px; }
+  .title { font-family:'Noto Serif TC',serif; font-size:26px; font-weight:700; color:var(--brown-dark); letter-spacing:2px; margin-bottom:6px; }
+  .subtitle { font-size:13px; color:var(--brown-mid); letter-spacing:1px; }
+
+  .container { max-width:680px; margin:0 auto; padding:28px 16px 60px; }
+
+  .steps-row { display:flex; margin-bottom:28px; background:#fff; border-radius:12px; padding:16px 20px; border:1.5px solid var(--sand); box-shadow:0 2px 10px rgba(58,42,30,0.06); }
+  .step { flex:1; text-align:center; position:relative; padding:0 4px; }
+  .step:not(:last-child)::after { content:'→'; position:absolute; right:-6px; top:50%; transform:translateY(-50%); color:var(--brown-pale); font-size:14px; }
+  .step-num { width:26px; height:26px; background:var(--caramel); color:#fff; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; margin:0 auto 5px; }
+  .step-label { font-size:11px; color:var(--brown-dark); line-height:1.3; font-weight:500; }
+
+  .section { background:#fff; border-radius:14px; padding:22px 20px; margin-bottom:16px; box-shadow:0 2px 12px var(--shadow); border:1px solid var(--sand-light); }
+  .section-title { font-family:'Noto Serif TC',serif; font-size:15px; font-weight:700; color:var(--brown-mid); margin-bottom:16px; display:flex; align-items:center; gap:8px; letter-spacing:1px; }
+  .section-title::before { content:''; display:block; width:3px; height:16px; background:var(--caramel); border-radius:2px; flex-shrink:0; }
+
+  .notice { background:var(--sand-light); border-left:3px solid var(--caramel); border-radius:0 8px 8px 0; padding:12px 14px; margin-bottom:12px; font-size:13px; line-height:1.9; }
+  .notice strong { color:var(--caramel); }
+  .notice .warn { color:var(--red-accent); font-weight:500; }
+
+  .product-card { border:1.5px solid var(--sand); border-radius:12px; margin-bottom:12px; overflow:hidden; background:#fff; transition:border-color 0.2s, box-shadow 0.2s; box-shadow:0 1px 6px rgba(58,42,30,0.05); }
+  .product-card.selected { border-color:var(--caramel); box-shadow:0 2px 10px rgba(155,115,85,0.15); }
+  .product-img-wrap { width:100%; overflow:hidden; background:var(--sand-light); }
+  .product-img-wrap img { width:100%; height:auto; display:block; }
+  .product-img-placeholder { width:100%; height:140px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; color:var(--brown-pale); border-bottom:1.5px dashed var(--sand); }
+  .product-img-placeholder .ph-icon { font-size:28px; opacity:0.5; }
+  .product-img-placeholder .ph-text { font-size:11px; letter-spacing:1px; opacity:0.6; }
+  .product-body { padding:14px 16px; }
+  .product-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:6px; }
+  .product-name { font-family:'Noto Serif TC',serif; font-size:15px; font-weight:700; color:var(--brown-dark); line-height:1.4; }
+  .product-price { font-size:17px; font-weight:700; color:var(--caramel); white-space:nowrap; margin-left:8px; }
+  .product-desc { font-size:12px; color:#888; margin-bottom:12px; line-height:1.6; display:flex; flex-wrap:wrap; gap:4px; }
+  .tag { display:inline-block; background:var(--sand-light); border-radius:4px; padding:2px 8px; color:var(--brown-mid); font-size:11px; }
+  .qty-row { display:flex; align-items:center; gap:10px; }
+  .qty-label { font-size:13px; color:#777; }
+  .qty-ctrl { display:flex; align-items:center; border:1.5px solid var(--sand); border-radius:8px; overflow:hidden; }
+  .qty-btn { width:32px; height:32px; border:none; background:var(--sand-light); color:var(--brown-mid); font-size:18px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background 0.15s; user-select:none; }
+  .qty-btn:hover { background:var(--sand); }
+  .qty-input { width:38px; height:32px; border:none; border-left:1.5px solid var(--sand); border-right:1.5px solid var(--sand); text-align:center; font-size:14px; font-family:'Noto Sans TC',sans-serif; color:var(--brown-dark); background:#fff; -moz-appearance:textfield; }
+  .qty-input::-webkit-outer-spin-button, .qty-input::-webkit-inner-spin-button { -webkit-appearance:none; }
+  .subtotal { margin-left:auto; font-size:13px; color:var(--brown-mid); }
+  .subtotal span { font-weight:700; color:var(--caramel); }
+
+  /* 包裝選項 */
+  .pack-options { display:flex; gap:8px; flex-wrap:wrap; }
+  .pack-option { flex:1; min-width:100px; border:2px solid var(--sand); border-radius:10px; padding:10px 12px; cursor:pointer; transition:all 0.2s; background:#fff; text-align:center; }
+  .pack-option:hover { border-color:var(--brown-pale); }
+  .pack-option input { display:none; }
+  .pack-option.selected { border-color:var(--caramel); background:#FFF8F2; }
+  .pack-option-label { font-size:13px; font-weight:500; color:var(--brown-dark); display:block; margin-bottom:2px; }
+  .pack-option-note { font-size:11px; color:#999; line-height:1.4; }
+
+  /* 運費區 */
+  .shipping-box { background:var(--sand-light); border-radius:10px; padding:14px 16px; margin-bottom:14px; }
+  .shipping-title { font-size:13px; font-weight:700; color:var(--brown-mid); margin-bottom:10px; }
+  .shipping-options { display:flex; flex-direction:column; gap:8px; }
+  .shipping-option { display:flex; justify-content:space-between; align-items:center; padding:10px 14px; background:#fff; border-radius:8px; border:1.5px solid var(--sand); cursor:pointer; transition:all 0.2s; }
+  .shipping-option.selected { border-color:var(--caramel); background:#FFF8F2; }
+  .shipping-option.disabled { opacity:0.4; cursor:not-allowed; background:#f5f5f5; }
+  .shipping-label { font-size:13px; color:var(--brown-dark); }
+  .shipping-price { font-size:14px; font-weight:700; color:var(--caramel); }
+  .shipping-warn { font-size:12px; color:var(--red-accent); margin-top:8px; padding:8px 12px; background:#FFF0F0; border-radius:6px; display:none; }
+  .shipping-warn.show { display:block; }
+
+  /* 合計 */
+  .total-box { background:#fff; border-radius:16px; padding:22px 22px; margin-bottom:16px; border:2.5px solid var(--caramel); box-shadow:0 6px 24px rgba(155,115,85,0.14); position:relative; overflow:hidden; }
+  .total-box::before { content:'請確認訂單內容'; position:absolute; top:0; right:0; background:var(--caramel); color:#fff; font-size:11px; font-weight:700; letter-spacing:1px; padding:4px 12px; border-radius:0 14px 0 10px; }
+  .total-row { display:flex; justify-content:space-between; align-items:center; font-size:13px; padding:7px 0; border-bottom:1px solid rgba(155,115,85,0.15); color:var(--brown-dark); }
+  .total-row.grand { font-size:22px; font-weight:700; color:var(--brown-dark); padding-top:14px; margin-top:8px; border-top:2px solid var(--caramel); border-bottom:none; }
+  .total-row.grand span:last-child { color:var(--caramel); font-size:26px; }
+  .total-label { font-family:'Noto Serif TC',serif; font-size:14px; font-weight:700; color:var(--brown-mid); margin-bottom:12px; letter-spacing:1px; display:flex; align-items:center; gap:6px; }
+  .total-label::before { content:''; display:block; width:3px; height:16px; background:var(--caramel); border-radius:2px; }
+  .total-qty-ctrl { display:flex; align-items:center; border:1.5px solid var(--sand); border-radius:7px; overflow:hidden; margin:0 8px; }
+  .total-qty-btn { width:26px; height:26px; border:none; background:#fff; color:var(--brown-mid); font-size:15px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+  .total-qty-btn:hover { background:var(--sand); }
+  .total-qty-num { width:28px; height:26px; text-align:center; font-size:13px; font-weight:700; color:var(--brown-dark); line-height:26px; border-left:1.5px solid var(--sand); border-right:1.5px solid var(--sand); background:#fff; }
+  .total-box.flash { animation:flashBrown 0.4s ease; }
+  @keyframes flashBrown { 0%{background:#fff} 50%{background:#F5EFE6} 100%{background:#fff} }
+  @keyframes popIn { 0%{opacity:0;transform:scale(0.7)} 100%{opacity:1;transform:scale(1)} }
+
+  /* 表單 */
+  .form-group { margin-bottom:14px; }
+  .form-label { display:block; font-size:13px; font-weight:500; color:var(--brown-mid); margin-bottom:6px; }
+  .form-label .req { color:var(--red-accent); margin-left:2px; }
+  .form-input { width:100%; padding:10px 14px; border:1.5px solid var(--sand); border-radius:8px; font-size:16px; font-family:'Noto Sans TC',sans-serif; color:var(--brown-dark); background:#fff; transition:border-color 0.2s; }
+  .form-input:focus { outline:none; border-color:var(--caramel); box-shadow:0 0 0 3px rgba(155,115,85,0.1); }
+  .form-input.error { border-color:var(--red-accent) !important; box-shadow:0 0 0 3px rgba(168,64,64,0.15) !important; animation:shakeField 0.4s ease; }
+  .field-error-msg { font-size:11px; color:var(--red-accent); margin-top:4px; display:none; font-weight:500; }
+  .field-error-msg.show { display:block; }
+  @keyframes shakeField { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-6px)} 40%{transform:translateX(6px)} 60%{transform:translateX(-4px)} 80%{transform:translateX(4px)} }
+  .form-hint { font-size:11px; color:#999; margin-top:4px; }
+
+  /* 退貨政策 */
+  .policy-toggle { width:100%; background:none; border:none; cursor:pointer; display:flex; justify-content:space-between; align-items:center; padding:0; font-family:'Noto Serif TC',serif; font-size:15px; font-weight:700; color:var(--brown-mid); letter-spacing:1px; }
+  .policy-toggle .arrow { font-size:12px; color:var(--brown-pale); }
+  .policy-body { display:block; margin-top:12px; font-size:12px; line-height:2; color:#666; }
+  .policy-body li { margin-left:16px; margin-bottom:4px; }
+
+  /* 確認勾選 */
+  .confirm-check-wrap { background:#FFF8F0; border:2px solid var(--caramel); border-radius:12px; padding:16px 18px; margin-bottom:14px; display:flex; align-items:flex-start; gap:12px; cursor:pointer; }
+  .confirm-check-wrap input[type=checkbox] { display:none; }
+  .confirm-check-box { width:22px; height:22px; border:2px solid var(--caramel); border-radius:5px; flex-shrink:0; display:flex; align-items:center; justify-content:center; margin-top:1px; transition:background 0.15s; background:#fff; }
+  .confirm-check-wrap.checked .confirm-check-box { background:var(--caramel); }
+  .confirm-check-wrap.checked .confirm-check-box::after { content:'✓'; color:#fff; font-size:14px; font-weight:700; }
+  .confirm-check-text { font-size:13px; line-height:1.8; color:var(--brown-dark); }
+  .confirm-check-text strong { color:var(--caramel); }
+
+  /* Alert & Submit */
+  .alert { background:#FFF3F3; border:1px solid #F5C0C0; border-radius:8px; padding:10px 14px; font-size:12px; color:var(--red-accent); margin-bottom:12px; display:none; }
+  .alert.show { display:block; }
+  .submit-btn { width:100%; padding:16px; background:var(--caramel); color:#fff; border:none; border-radius:12px; font-family:'Noto Serif TC',serif; font-size:17px; font-weight:700; letter-spacing:2px; cursor:pointer; transition:background 0.2s, transform 0.1s; box-shadow:0 4px 14px rgba(155,115,85,0.35); }
+  .submit-btn:hover { background:var(--brown-mid); transform:translateY(-1px); }
+
+  /* 成功畫面 */
+  .success-screen { display:none; background:#fff; border-radius:14px; padding:36px 24px; margin-top:0; box-shadow:0 2px 12px var(--shadow); text-align:center; }
+  .success-screen.show { display:block; }
+  .success-icon { font-size:48px; margin-bottom:14px; }
+  .success-title { font-family:'Noto Serif TC',serif; font-size:20px; font-weight:700; color:var(--brown-dark); margin-bottom:16px; }
+  .success-steps { text-align:left; background:var(--sand-light); border-radius:10px; padding:16px 18px; margin-bottom:16px; }
+  .success-step { display:flex; gap:12px; align-items:flex-start; padding:8px 0; border-bottom:1px solid rgba(155,115,85,0.2); font-size:13px; line-height:1.7; }
+  .success-step:last-child { border-bottom:none; }
+  .success-step-num { width:22px; height:22px; background:var(--caramel); color:#fff; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; flex-shrink:0; margin-top:2px; }
+  .success-step strong { color:var(--caramel); }
+  .success-links { display:flex; gap:10px; flex-wrap:wrap; justify-content:center; }
+  .success-link-btn { flex:1; min-width:130px; padding:16px; border-radius:12px; border:none; background:var(--caramel); color:#fff; font-family:'Noto Serif TC',serif; font-size:16px; font-weight:700; cursor:pointer; text-decoration:none; display:flex; align-items:center; justify-content:center; gap:8px; box-shadow:0 4px 14px rgba(155,115,85,0.4); animation:pulse 1.5s infinite; }
+  .success-link-btn:hover { background:var(--brown-mid); transform:translateY(-2px); }
+  @keyframes pulse { 0%,100%{box-shadow:0 4px 14px rgba(155,115,85,0.4)} 50%{box-shadow:0 4px 24px rgba(155,115,85,0.75);transform:translateY(-2px)} }
+
+  /* 彈窗 */
+  .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.55); z-index:9999; align-items:center; justify-content:center; padding:20px; }
+  .modal-overlay.show { display:flex; }
+  .modal-box { background:#fff; border-radius:16px; padding:28px 24px; max-width:360px; width:100%; text-align:center; box-shadow:0 8px 32px rgba(0,0,0,0.2); animation:modalIn 0.3s ease; }
+  @keyframes modalIn { from{transform:scale(0.85);opacity:0} to{transform:scale(1);opacity:1} }
+  .modal-icon { font-size:40px; margin-bottom:10px; }
+  .modal-title { font-family:'Noto Serif TC',serif; font-size:18px; font-weight:700; color:var(--brown-dark); margin-bottom:8px; }
+  .modal-warn { background:#FFF0F0; border:1px solid #F5C0C0; border-radius:8px; padding:10px 14px; font-size:13px; color:var(--red-accent); font-weight:500; margin-bottom:16px; line-height:1.7; }
+  .modal-links { display:flex; flex-direction:column; gap:10px; margin-bottom:14px; }
+  .modal-link-btn { padding:14px; border-radius:10px; border:none; background:var(--caramel); color:#fff; font-family:'Noto Serif TC',serif; font-size:15px; font-weight:700; cursor:pointer; text-decoration:none; display:flex; align-items:center; justify-content:center; gap:8px; transition:all 0.2s; }
+  .modal-link-btn:hover { background:var(--brown-mid); }
+
+  @media(max-width:600px) {
+    .title { font-size:21px; }
+    .steps-row { padding:14px 10px; }
+    .step-label { font-size:10px; }
+    .pack-options { flex-direction:column; }
+    .submit-btn { font-size:16px; padding:18px; }
+    .success-links { flex-direction:column; }
+    .form-input { font-size:16px; }
+    .shipping-options { gap:6px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="brand">苷舍甜點工作室</div>
+  <div class="title">半熟乳酪塔 宅配表單</div>
+  <div style="font-size:13px;color:var(--brown-mid);margin-top:6px;">🚚 台灣本島宅配</div>
+</div>
+
+<div class="container">
+
+  <!-- 步驟 -->
+  <div class="steps-row">
+    <div class="step"><div class="step-num">1</div><div class="step-label">填寫<br>表單</div></div>
+    <div class="step"><div class="step-num">2</div><div class="step-label">送出後<br>私訊姓名</div></div>
+    <div class="step"><div class="step-num">3</div><div class="step-label">24小時內<br>完成匯款</div></div>
+    <div class="step"><div class="step-num">4</div><div class="step-label">等待<br>收件</div></div>
+  </div>
+
+
+  <!-- 宅配出貨說明 -->
+  <div class="section" style="background:var(--sand-light);border-left:4px solid var(--caramel);border-radius:0 14px 14px 0;padding:18px 20px;margin-bottom:4px;">
+    <div style="font-family:'Noto Serif TC',serif;font-size:14px;font-weight:700;color:var(--brown-mid);margin-bottom:10px;display:flex;align-items:center;gap:6px;">🚚 宅配出貨日說明</div>
+    <div style="font-size:13px;line-height:2;color:var(--brown-dark);">
+      到貨日平均為出貨日後一至三天，如遇繁盛時期可能會更長，還請理解。<br>
+      <div style="margin-top:8px;background:#fff;border-radius:8px;padding:10px 14px;border:1px solid var(--sand);">
+        <span style="color:var(--caramel);font-weight:700;">預計於 4/15 當週開始出貨</span>　依下單順序排單出貨　<span style="color:var(--red-accent);font-weight:500;">恕不指定日期</span><br>
+        <span style="font-size:12px;color:#888;">（每週三、四出貨）</span><br>
+        <span style="font-size:12px;color:var(--brown-mid);">4/15 - 5/6 恕不指定出貨日，會依下單順序出貨。</span>
+      </div>
+    </div>
+  </div>
+
+  <div id="formArea">
+
+    <!-- 品項資訊（折疊） -->
+    <div class="section" style="padding:0;overflow:hidden;">
+      <button onclick="toggleInfo()" style="width:100%;background:none;border:none;padding:16px 20px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;font-family:'Noto Serif TC',serif;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span style="font-size:16px;">📋</span>
+          <span style="font-size:14px;font-weight:700;color:var(--brown-dark);letter-spacing:1px;">成分 · 過敏原 · 保存方式</span>
+          <span style="font-size:10px;background:var(--caramel);color:#fff;padding:2px 8px;border-radius:10px;">🍶 含酒精</span>
+        </div>
+        <span id="infoArrow" style="color:var(--brown-pale);font-size:12px;transition:transform 0.2s;">▼</span>
+      </button>
+      <div id="infoBody" style="display:none;border-top:1px solid var(--sand-light);padding:16px 20px;">
+        <div style="background:#3A2A1E;color:#fff;border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:12px;line-height:1.8;">
+          🍶 <strong>本店半熟乳酪塔、可麗露、蘭姆葡萄餅乾均含蘭姆酒</strong><br>
+          <span style="color:rgba(255,255,255,0.75);">未成年、孕婦及對酒精過敏者請勿購買</span>
+        </div>
+        <div style="font-size:12px;color:var(--brown-dark);">
+          <div style="margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid var(--sand-light);">
+            <div style="font-weight:700;margin-bottom:4px;">🥧 半熟乳酪塔</div>
+            <div style="color:var(--brown-mid);margin-bottom:3px;">蛋奶素｜<span style="color:var(--red-accent);">過敏原：蛋・奶・堅果・酒・麩質</span></div>
+            <div style="color:#888;font-size:11px;line-height:1.8;">奶油乳酪／馬斯卡彭／切達乳酪／牛奶／糖／麵粉／雞蛋／杏仁粉／蘭姆酒</div>
+          </div>
+          <div style="margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid var(--sand-light);">
+            <div style="font-weight:700;margin-bottom:4px;">🍫 原味可麗露</div>
+            <div style="color:var(--brown-mid);margin-bottom:3px;">蛋奶素｜<span style="color:var(--red-accent);">過敏原：蛋・奶・堅果・酒・麩質</span></div>
+            <div style="color:#888;font-size:11px;line-height:1.8;">牛奶／糖／麵粉／奶油／蘭姆酒／香草籽</div>
+          </div>
+          <div style="margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid var(--sand-light);">
+            <div style="font-weight:700;margin-bottom:4px;">🍪 蘭姆葡萄餅乾</div>
+            <div style="color:var(--brown-mid);margin-bottom:3px;">蛋奶素｜<span style="color:var(--red-accent);">過敏原：蛋・奶・堅果・酒・麩質</span></div>
+            <div style="color:#888;font-size:11px;line-height:1.8;">奶油／奶油乳酪／糖／雞蛋／麵粉／杏仁粉／葡萄乾／蘭姆酒</div>
+          </div>
+          <div style="margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--sand-light);">
+            <div style="font-weight:700;margin-bottom:4px;">🎂 巴斯克乳酪蛋糕</div>
+            <div style="color:var(--brown-mid);margin-bottom:3px;">蛋奶素｜<span style="color:var(--red-accent);">過敏原：蛋・奶・麩質</span></div>
+            <div style="color:#888;font-size:11px;line-height:1.8;">奶油乳酪／鮮奶油／雞蛋／糖／麵粉</div>
+          </div>
+          <div style="background:var(--sand-light);border-radius:8px;padding:10px 14px;font-size:12px;line-height:2;">
+            🧊 <strong>保存方式</strong><br>
+            半熟乳酪塔｜冷凍 7 天　可麗露｜冷凍 5 天　蘭姆葡萄餅乾｜冷凍 7 天<br>
+            巴斯克乳酪蛋糕｜冷凍 5 天／冷藏 3 天
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 商品 -->
+    <div class="section">
+      <div class="section-title">選擇商品</div>
+
+      <!-- 大綜合 -->
+      <div class="product-card" id="card-combo">
+        <div class="product-img-wrap"><img src="https://gangshr.github.io/2026cheesetartship/1.jpg" alt="大綜合組"></div>
+        <div class="product-body">
+          <div class="product-header"><div class="product-name">大綜合組</div><div class="product-price">$1,050</div></div>
+          <div class="product-desc"><span class="tag">半熟乳酪塔 ×4</span><span class="tag">可麗露 ×4</span><span class="tag">蘭姆葡萄餅乾 ×4</span></div>
+          <div class="qty-row">
+            <span class="qty-label">數量</span>
+            <div class="qty-ctrl">
+              <button class="qty-btn" onclick="changeQty('combo',-1)">−</button>
+              <input class="qty-input" type="number" id="qty-combo" value="0" min="0" max="10" oninput="updateAll('combo',1050)">
+              <button class="qty-btn" onclick="changeQty('combo',1)">+</button>
+            </div>
+            <span class="subtotal">小計：<span id="sub-combo">$0</span></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 半熟乳酪塔 -->
+      <div class="product-card" id="card-tart">
+        <div class="product-img-wrap"><img src="https://gangshr.github.io/2026cheesetartship/2.jpg
+" alt="8入半熟乳酪塔"></div>
+        <div class="product-body">
+          <div class="product-header"><div class="product-name">8入半熟乳酪塔</div><div class="product-price">$750</div></div>
+          <div class="product-desc"><span class="tag">半熟乳酪塔 ×8</span></div>
+          <div class="qty-row">
+            <span class="qty-label">數量</span>
+            <div class="qty-ctrl">
+              <button class="qty-btn" onclick="changeQty('tart',-1)">−</button>
+              <input class="qty-input" type="number" id="qty-tart" value="0" min="0" max="10" oninput="updateAll('tart',750)">
+              <button class="qty-btn" onclick="changeQty('tart',1)">+</button>
+            </div>
+            <span class="subtotal">小計：<span id="sub-tart">$0</span></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 可麗露 -->
+      <div class="product-card" id="card-canele">
+        <div class="product-img-wrap"><img src="https://gangshr.github.io/2026cheesetartship/3.jpg" alt="原味可麗露"></div>
+        <div class="product-body">
+          <div class="product-header"><div class="product-name">原味可麗露（6入）</div><div class="product-price">$480</div></div>
+          <div class="product-desc"><span class="tag">可麗露 ×6</span></div>
+          <div class="qty-row">
+            <span class="qty-label">數量</span>
+            <div class="qty-ctrl">
+              <button class="qty-btn" onclick="changeQty('canele',-1)">−</button>
+              <input class="qty-input" type="number" id="qty-canele" value="0" min="0" max="10" oninput="updateAll('canele',480)">
+              <button class="qty-btn" onclick="changeQty('canele',1)">+</button>
+            </div>
+            <span class="subtotal">小計：<span id="sub-canele">$0</span></span>
+          </div>
+        </div>
+      </div>
+
+            <!-- 蘭姆葡萄 -->
+      <div class="product-card" id="card-rum">
+        <div class="product-img-wrap"><img src="https://gangshr.github.io/2026cheesetartship/4.jpg" alt="蘭姆葡萄餅乾"></div>
+        <div class="product-body">
+          <div class="product-header"><div class="product-name">8入蘭姆葡萄餅乾</div><div class="product-price">$640</div></div>
+          <div class="product-desc"><span class="tag">蘭姆葡萄餅乾 ×8</span></div>
+          <div class="qty-row">
+            <span class="qty-label">數量</span>
+            <div class="qty-ctrl">
+              <button class="qty-btn" onclick="changeQty('rum',-1)">−</button>
+              <input class="qty-input" type="number" id="qty-rum" value="0" min="0" max="10" oninput="updateAll('rum',640)">
+              <button class="qty-btn" onclick="changeQty('rum',1)">+</button>
+            </div>
+            <span class="subtotal">小計：<span id="sub-rum">$0</span></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 巴斯克 -->
+      <div class="product-card" id="card-basque">
+        <div class="product-img-wrap"><img src="https://gangshr.github.io/2026cheesetartship/5.jpg"" alt="6吋巴斯克乳酪蛋糕"></div>
+        <div class="product-body">
+          <div class="product-header"><div class="product-name">6吋巴斯克乳酪蛋糕</div><div class="product-price">$690</div></div>
+          <div class="product-desc"></div>
+          <div class="qty-row">
+            <span class="qty-label">數量</span>
+            <div class="qty-ctrl">
+              <button class="qty-btn" onclick="changeQty('basque',-1)">−</button>
+              <input class="qty-input" type="number" id="qty-basque" value="0" min="0" max="10" oninput="updateAll('basque',690)">
+              <button class="qty-btn" onclick="changeQty('basque',1)">+</button>
+            </div>
+            <span class="subtotal">小計：<span id="sub-basque">$0</span></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 運費 -->
+    <div class="section">
+      <div class="section-title">運費</div>
+      <div class="shipping-box">
+        <div class="shipping-title">📦 依訂購盒數自動計算運費</div>
+        <div class="shipping-options">
+          <div class="shipping-option" id="ship-1" onclick="selectShipping(180,'1盒')">
+            <span class="shipping-label">1 盒</span>
+            <span class="shipping-price">$180</span>
+          </div>
+          <div class="shipping-option" id="ship-2" onclick="selectShipping(250,'2–4盒')">
+            <span class="shipping-label">2–4 盒</span>
+            <span class="shipping-price">$250</span>
+          </div>
+          <div class="shipping-option" id="ship-3" onclick="selectShipping(320,'5–10盒')">
+            <span class="shipping-label">5–10 盒</span>
+            <span class="shipping-price">$320</span>
+          </div>
+          <div class="shipping-option disabled" id="ship-4">
+            <span class="shipping-label">超過 10 盒　需拆箱寄送</span>
+            <span class="shipping-price" style="color:var(--red-accent);">請先洽詢</span>
+          </div>
+        </div>
+        <div class="shipping-warn" id="shippingWarn"></div>
+        <div id="shippingAutoMsg" style="display:none;margin-top:8px;font-size:12px;color:var(--caramel);font-weight:500;"></div>
+      </div>
+    </div>
+
+    <!-- 合計 -->
+    <div class="total-box" style="position:relative;">
+      <div id="totalUpdatedMsg" style="display:none;position:absolute;inset:0;background:rgba(155,115,85,0.92);border-radius:14px;z-index:10;flex-direction:column;align-items:center;justify-content:center;gap:6px;">
+        <div style="font-family:'Noto Serif TC',serif;font-size:28px;font-weight:700;color:#fff;letter-spacing:4px;animation:popIn 0.3s cubic-bezier(0.34,1.56,0.64,1);">訂單已更新</div>
+        <div style="font-size:13px;color:rgba(255,255,255,0.85);letter-spacing:2px;">請確認內容正確</div>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+        <div class="total-label" style="margin-bottom:0;">🧾 訂單明細</div>
+      </div>
+      <div id="totalRows">
+        <div class="total-row"><span style="color:var(--brown-pale);font-size:12px;">尚未選擇商品</span><span></span></div>
+      </div>
+      <div class="total-row grand"><span>合計（含運費）</span><span id="grandTotal">$0</span></div>
+    </div>
+
+    <!-- 訂購人資料 -->
+    <div class="section">
+      <div class="section-title">訂購人資料</div>
+      <div class="notice">因宅配需核對資料，請務必詳細且正確填寫喔！</div>
+      <div class="form-group">
+        <label class="form-label">電子郵件<span class="req">*</span></label>
+        <input class="form-input" type="email" id="email" placeholder="your@email.com" oninput="clearError('email')">
+        <div class="field-error-msg" id="err-email">請填寫電子郵件</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Facebook 或 LINE 暱稱<span class="req">*</span></label>
+        <input class="form-input" type="text" id="nickname" placeholder="填寫您使用的平台暱稱" oninput="clearError('nickname')">
+        <div class="field-error-msg" id="err-nickname">請填寫 FB 或 LINE 暱稱</div>
+        <div class="form-hint">FB聯絡 → 填FB暱稱｜LINE官方聯絡 → 填LINE暱稱</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">訂購人中文姓名<span class="req">*</span></label>
+        <input class="form-input" type="text" id="name" placeholder="核對訂單使用" oninput="clearError('name')">
+        <div class="field-error-msg" id="err-name">請填寫中文姓名</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">訂購人聯絡電話<span class="req">*</span></label>
+        <input class="form-input" type="tel" id="phone" placeholder="09xx-xxxxxx" oninput="clearError('phone')">
+        <div class="field-error-msg" id="err-phone">請填寫聯絡電話</div>
+      </div>
+    </div>
+
+    <!-- 收件人資料 -->
+    <div class="section">
+      <div class="section-title">收件人資料</div>
+      <div style="margin-bottom:14px;">
+        <button type="button" onclick="copyOrdererToReceiver()" style="display:flex;align-items:center;gap:6px;padding:10px 16px;background:var(--sand-light);border:1.5px solid var(--caramel);border-radius:8px;cursor:pointer;font-family:'Noto Sans TC',sans-serif;font-size:13px;color:var(--caramel);font-weight:500;transition:all 0.2s;">
+          <span>📋</span> 同訂購人資料
+        </button>
+        <div class="form-hint" style="margin-top:6px;">如果收件人與訂購人相同，點擊上方按鈕自動填入</div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">收件人姓名<span class="req">*</span></label>
+        <input class="form-input" type="text" id="recv-name" placeholder="收件人全名" oninput="clearError('recv-name')">
+        <div class="field-error-msg" id="err-recv-name">請填寫收件人姓名</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">收件人電話<span class="req">*</span></label>
+        <input class="form-input" type="tel" id="recv-phone" placeholder="09xx-xxxxxx" oninput="clearError('recv-phone')">
+        <div class="field-error-msg" id="err-recv-phone">請填寫收件人電話</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">收件地址<span class="req">*</span>（台灣本島）</label>
+        <input class="form-input" type="text" id="recv-addr" placeholder="縣市 + 鄉鎮市區 + 詳細地址" oninput="clearError('recv-addr')">
+        <div class="field-error-msg" id="err-recv-addr">請填寫收件地址</div>
+      </div>
+    </div>
+
+    <!-- 退貨政策 -->
+    <div class="section">
+      <button class="policy-toggle" id="policyBtn" onclick="togglePolicy()">
+        退貨退款政策 <span class="arrow">▼</span>
+      </button>
+      <div class="policy-body" id="policyBody">
+        <ul>
+          <li>颱風等不可抗力因素，出貨日順延並提前通知</li>
+          <li><strong>不受理更改收件地址、品項、數量</strong></li>
+          <li>訂單成立後取消，扣除$100處理費及訂單總額50%後退還剩餘款項（需提前6天告知）</li>
+          <li><strong>生鮮食品不適用消費者保護法第十九條，不享有七天鑑賞期</strong></li>
+          <li>與期待不符、不合口味、無依照保存方式保存等情事，不予退款</li>
+          <li>產品有狀況請於<strong>收到當日反應</strong>，逾期不受理</li>
+          <li>宅配過程因物流造成的損壞，請當日拍照回報，我們協助處理</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 確認勾選 -->
+    <div class="confirm-check-wrap" id="confirmCheck" onclick="toggleConfirm()">
+      <div class="confirm-check-box"></div>
+      <div class="confirm-check-text">
+        我已閱讀並同意上述退貨退款政策，且確認所有訂購及收件資訊正確無誤。<br>
+        <strong>送出表單後，我會立刻在 60 分鐘內私訊苷舍告知訂購人中文姓名。</strong>
+      </div>
+    </div>
+
+    <div id="alertBox" class="alert"></div>
+    <button class="submit-btn" onclick="submitForm()">確認送出訂單 →</button>
+
+  </div><!-- /formArea -->
+
+  <!-- 成功畫面 -->
+  <div class="success-screen" id="successScreen">
+    <div class="success-icon">🎉</div>
+    <div class="success-title">訂單已送出！接下來請這樣做：</div>
+    <div class="success-steps">
+      <div class="success-step">
+        <div class="success-step-num">1</div>
+        <div><strong>現在立刻</strong>透過下方按鈕私訊我們，告知「<strong>訂購人中文姓名</strong>」<br><span style="color:var(--red-accent);font-size:12px;">⚠ 60分鐘內未私訊，訂單自動取消不保留</span></div>
+      </div>
+      <div class="success-step">
+        <div class="success-step-num">2</div>
+        <div>收到回覆後，我們會提供<strong>匯款帳號與期限</strong></div>
+      </div>
+      <div class="success-step">
+        <div class="success-step-num">3</div>
+        <div><strong>24小時內完成匯款</strong>，訂單正式成立</div>
+      </div>
+      <div class="success-step">
+        <div class="success-step-num">4</div>
+        <div>完款後我們將安排出貨，請注意收件通知 📦</div>
+      </div>
+    </div>
+    <div class="success-links">
+      <a class="success-link-btn" href="https://m.me/cheeseing2014" target="_blank" onclick="closeModal()">💬 FB 私訊我們</a>
+      <a class="success-link-btn" href="https://lin.ee/9Z6dbCZ" target="_blank" onclick="closeModal()">📱 LINE 官方私訊</a>
+    </div>
+  </div>
+
+</div>
+
+<!-- 彈窗 -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal-box">
+    <div class="modal-icon">⚠️</div>
+    <div class="modal-title">訂單已送出！請立刻私訊我們</div>
+    <div class="modal-warn"><strong>60分鐘內</strong>未私訊告知姓名<br>訂單將<strong>自動取消不保留</strong>！</div>
+    <div class="modal-links">
+      <a class="modal-link-btn" href="https://m.me/cheeseing2014" target="_blank" onclick="closeModal()">💬 立刻 FB 私訊我們</a>
+      <a class="modal-link-btn" href="https://lin.ee/9Z6dbCZ" target="_blank" onclick="closeModal()">📱 立刻 LINE 官方私訊</a>
+    </div>
+  </div>
+</div>
+
+<script>
+const prices = {combo:1050, tart:750, canele:480, rum:640, basque:690};
+const names  = {combo:'大綜合組', tart:'8入半熟乳酪塔', canele:'原味可麗露(6入)', rum:'8入蘭姆葡萄餅乾', basque:'6吋巴斯克乳酪蛋糕'};
+let shippingFee = 0;
+let shippingLabel = '';
+
+function getQty(id){ return parseInt(document.getElementById('qty-'+id).value)||0; }
+
+function changeQty(id, delta){
+  const input = document.getElementById('qty-'+id);
+  const max = parseInt(input.max)||10;
+  let val = (parseInt(input.value)||0)+delta;
+  val = Math.max(0, Math.min(max, val));
+  input.value = val;
+  updateAll(id, prices[id]);
+}
+
+function updateAll(id, price){
+  const qty = getQty(id);
+  document.getElementById('sub-'+id).textContent = '$'+(qty*price).toLocaleString();
+  document.getElementById('card-'+id).classList.toggle('selected', qty>0);
+  autoSelectShipping();
+  updateTotal();
+  checkPackSection();
+}
+
+function getTotalBoxes(){
+  return Object.keys(prices).reduce((sum, id) => sum + getQty(id), 0);
+}
+
+function autoSelectShipping(){
+  const boxes = getTotalBoxes();
+  const warn = document.getElementById('shippingWarn');
+  const autoMsg = document.getElementById('shippingAutoMsg');
+
+  // 清除所有選中
+  ['ship-1','ship-2','ship-3','ship-4'].forEach(id => {
+    document.getElementById(id).classList.remove('selected');
+  });
+
+  if(boxes === 0){
+    shippingFee = 0; shippingLabel = '';
+    warn.classList.remove('show');
+    autoMsg.style.display = 'none';
+  } else if(boxes === 1){
+    document.getElementById('ship-1').classList.add('selected');
+    shippingFee = 180; shippingLabel = '運費（1盒）';
+    warn.classList.remove('show');
+    autoMsg.style.display = 'block';
+    autoMsg.textContent = `✓ 您共訂購 ${boxes} 盒，運費自動套用 $180`;
+  } else if(boxes <= 4){
+    document.getElementById('ship-2').classList.add('selected');
+    shippingFee = 250; shippingLabel = '運費（2–4盒）';
+    warn.classList.remove('show');
+    autoMsg.style.display = 'block';
+    autoMsg.textContent = `✓ 您共訂購 ${boxes} 盒，運費自動套用 $250`;
+  } else if(boxes <= 10){
+    document.getElementById('ship-3').classList.add('selected');
+    shippingFee = 320; shippingLabel = '運費（5–10盒）';
+    warn.classList.remove('show');
+    autoMsg.style.display = 'block';
+    autoMsg.textContent = `✓ 您共訂購 ${boxes} 盒，運費自動套用 $320`;
+  } else {
+    shippingFee = 0; shippingLabel = '';
+    warn.classList.add('show');
+    warn.textContent = `⚠ 您共訂購 ${boxes} 盒，超過10盒需拆箱寄送，請先透過 FB 或 LINE 洽詢我們！`;
+    autoMsg.style.display = 'none';
+  }
+  updateTotal();
+}
+
+function selectShipping(fee, label){
+  // 運費由系統自動決定，不允許手動選
+}
+
+function checkPackSection(){
+  // 包裝選項已移除，此函數保留空殼避免呼叫錯誤
+}
+
+function selectPack(t){
+  // 包裝選項已移除
+}
+
+let updateMsgTimer;
+function updateTotal(){
+  let total=0, rows=[];
+  for(const [id,price] of Object.entries(prices)){
+    const qty=getQty(id);
+    if(qty>0){
+      total+=qty*price;
+      let extra='';
+      // 可麗露不顯示包裝資訊
+      rows.push(`<div class="total-row"><span style="flex:1">${names[id]}${extra}</span><div style="display:flex;align-items:center;"><div class="total-qty-ctrl"><button class="total-qty-btn" onclick="totalChangeQty('${id}',-1)">−</button><div class="total-qty-num" id="tqty-${id}">${qty}</div><button class="total-qty-btn" onclick="totalChangeQty('${id}',1)">+</button></div><span style="font-size:13px;color:var(--brown-dark);min-width:60px;text-align:right;">$${(qty*price).toLocaleString()}</span></div></div>`);
+    }
+  }
+  if(shippingFee > 0){
+    total += shippingFee;
+    rows.push(`<div class="total-row"><span>${shippingLabel}</span><span>$${shippingFee}</span></div>`);
+  }
+  document.getElementById('totalRows').innerHTML = rows.length
+    ? rows.join('')
+    : '<div class="total-row"><span style="color:var(--brown-pale);font-size:12px;">尚未選擇商品</span><span></span></div>';
+  document.getElementById('grandTotal').textContent = '$'+total.toLocaleString();
+}
+
+function totalChangeQty(id, delta){
+  const input = document.getElementById('qty-'+id);
+  const max = parseInt(input.max)||10;
+  let val = (parseInt(input.value)||0)+delta;
+  val = Math.max(0, Math.min(max, val));
+  input.value = val;
+  updateAll(id, prices[id]);
+  const box = document.querySelector('.total-box');
+  box.classList.remove('flash');
+  void box.offsetWidth;
+  box.classList.add('flash');
+  const msg = document.getElementById('totalUpdatedMsg');
+  msg.style.display = 'flex';
+  clearTimeout(updateMsgTimer);
+  updateMsgTimer = setTimeout(()=>{ msg.style.display='none'; }, 1800);
+}
+
+
+function copyOrdererToReceiver(){
+  const name = document.getElementById('name').value.trim();
+  const phone = document.getElementById('phone').value.trim();
+  if(!name && !phone){
+    // 提示訂購人資料尚未填寫
+    const btn = event.currentTarget;
+    const orig = btn.innerHTML;
+    btn.innerHTML = '<span>⚠️</span> 請先填寫訂購人姓名與電話';
+    btn.style.color = 'var(--red-accent)';
+    btn.style.borderColor = 'var(--red-accent)';
+    setTimeout(()=>{ btn.innerHTML = orig; btn.style.color = ''; btn.style.borderColor = ''; }, 2000);
+    return;
+  }
+  if(name) document.getElementById('recv-name').value = name;
+  if(phone) document.getElementById('recv-phone').value = phone;
+  clearError('recv-name');
+  clearError('recv-phone');
+  const btn = event.currentTarget;
+  const orig = btn.innerHTML;
+  btn.innerHTML = '<span>✓</span> 已填入訂購人資料';
+  btn.style.background = 'var(--caramel)';
+  btn.style.color = '#fff';
+  setTimeout(()=>{ btn.innerHTML = orig; btn.style.background = ''; btn.style.color = ''; }, 2000);
+}
+
+function toggleInfo(){
+  const body = document.getElementById('infoBody');
+  const arrow = document.getElementById('infoArrow');
+  if(body.style.display === 'none'){ body.style.display='block'; arrow.style.transform='rotate(180deg)'; }
+  else { body.style.display='none'; arrow.style.transform=''; }
+}
+
+function togglePolicy(){
+  document.getElementById('policyBtn').classList.toggle('open');
+  document.getElementById('policyBody').classList.toggle('open');
+}
+
+function toggleConfirm(){
+  document.getElementById('confirmCheck').classList.toggle('checked');
+}
+
+function showError(fieldId){
+  const el = document.getElementById(fieldId);
+  if(!el) return;
+  el.classList.add('error');
+  const msg = document.getElementById('err-'+fieldId);
+  if(msg) msg.classList.add('show');
+  el.scrollIntoView({behavior:'smooth', block:'center'});
+  setTimeout(()=>el.focus(), 400);
+}
+
+function clearError(fieldId){
+  const el = document.getElementById(fieldId);
+  if(el) el.classList.remove('error');
+  const msg = document.getElementById('err-'+fieldId);
+  if(msg) msg.classList.remove('show');
+}
+
+function submitForm(){
+  const alertEl = document.getElementById('alertBox');
+  alertEl.classList.remove('show');
+  ['email','nickname','name','phone','recv-name','recv-phone','recv-addr'].forEach(clearError);
+
+  if(!Object.keys(prices).some(id=>getQty(id)>0)){
+    alertEl.textContent='請至少選擇一項商品';
+    alertEl.classList.add('show');
+    document.querySelector('.section').scrollIntoView({behavior:'smooth',block:'center'});
+    return;
+  }
+
+  const boxes = getTotalBoxes();
+  if(boxes > 10){
+    document.getElementById('shippingWarn').scrollIntoView({behavior:'smooth',block:'center'});
+    return;
+  }
+
+  if(!document.getElementById('email').value.trim()){ showError('email'); return; }
+  if(!document.getElementById('nickname').value.trim()){ showError('nickname'); return; }
+  if(!document.getElementById('name').value.trim()){ showError('name'); return; }
+  if(!document.getElementById('phone').value.trim()){ showError('phone'); return; }
+  if(!document.getElementById('recv-name').value.trim()){ showError('recv-name'); return; }
+  if(!document.getElementById('recv-phone').value.trim()){ showError('recv-phone'); return; }
+  if(!document.getElementById('recv-addr').value.trim()){ showError('recv-addr'); return; }
+
+  if(!document.getElementById('confirmCheck').classList.contains('checked')){
+    document.getElementById('confirmCheck').scrollIntoView({behavior:'smooth',block:'center'});
+    document.getElementById('confirmCheck').style.outline='2.5px solid var(--red-accent)';
+    setTimeout(()=>{document.getElementById('confirmCheck').style.outline='';}, 2000);
+    return;
+  }
+
+  // 送資料到 Google 試算表
+  const packEl = document.querySelector('.pack-option.selected');
+  const packLabel = packEl ? packEl.querySelector('.pack-option-label').textContent.trim() : '';
+  let totalAmt = 0;
+  for(const [id,price] of Object.entries(prices)) totalAmt += getQty(id)*price;
+  totalAmt += shippingFee;
+
+  const payload = {
+    type: '宅配',
+    email: document.getElementById('email').value.trim(),
+    nickname: document.getElementById('nickname').value.trim(),
+    name: document.getElementById('name').value.trim(),
+    phone: document.getElementById('phone').value.trim(),
+    recvName: document.getElementById('recv-name').value.trim(),
+    recvPhone: document.getElementById('recv-phone').value.trim(),
+    recvAddr: document.getElementById('recv-addr').value.trim(),
+    combo: getQty('combo'),
+    tart: getQty('tart'),
+    canele: getQty('canele'),
+    packaging: packLabel,
+    rum: getQty('rum'),
+    basque: getQty('basque'),
+    shipping: shippingLabel,
+    shippingFee: '$'+shippingFee,
+    total: '$'+totalAmt.toLocaleString()
+  };
+
+  fetch('https://script.google.com/macros/s/AKfycbyeBYq8UI0sMs9LEbkrMzgukgjLkbW_wEtEPkgmF2uc54RqlB03_wuwrZOu7n2dDvIbuw/exec', {
+    method:'POST', mode:'no-cors',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify(payload)
+  });
+
+  // 自動發送確認信給客人
+  sendConfirmEmail(payload, totalAmt);
+
+  document.getElementById('formArea').style.display='none';
+  const s = document.getElementById('successScreen');
+  s.classList.add('show');
+  s.scrollIntoView({behavior:'smooth'});
+  setTimeout(()=>{ showModal(); }, 400);
+}
+
+function showModal(){ document.getElementById('modalOverlay').classList.add('show'); }
+function closeModal(){ document.getElementById('modalOverlay').classList.remove('show'); }
+
+// ── EmailJS 初始化 ──────────────────────────────────────────
+(function(){
+  emailjs.init({ publicKey: '0clBK18T7vh3GcGtd' });
+})();
+
+function getProductSummary(){
+  const nameMap = { combo:'大綜合組', tart:'8入半熟乳酪塔', canele:'原味可麗露（6入）', rum:'8入蘭姆葡萄餅乾', basque:'6吋巴斯克乳酪蛋糕' };
+  const priceMap = { combo:1050, tart:750, canele:480, rum:640, basque:690 };
+  let lines = [];
+  for(const id of Object.keys(nameMap)){
+    const qty = getQty(id);
+    if(qty > 0){
+      lines.push(nameMap[id] + ' × ' + qty + ' 盒　$' + (qty * priceMap[id]).toLocaleString());
+    }
+  }
+  return lines.join('\n');
+}
+
+function sendConfirmEmail(payload, totalAmt){
+  const productLines = getProductSummary();
+  const now = new Date();
+  const dateStr = now.getFullYear() + '/' + String(now.getMonth()+1).padStart(2,'0') + '/' + String(now.getDate()).padStart(2,'0') + ' ' + String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
+
+  const templateParams = {
+    to_email:    payload.email,
+    to_name:     payload.name,
+    order_date:  dateStr,
+    nickname:    payload.nickname,
+    buyer_name:  payload.name,
+    buyer_phone: payload.phone,
+    recv_name:   payload.recvName,
+    recv_phone:  payload.recvPhone,
+    recv_addr:   payload.recvAddr,
+    products:    productLines,
+    shipping:    payload.shipping + '　' + payload.shippingFee,
+    total:       payload.total,
+    note:        '訂單送出後請在 24 小時內完成匯款，並透過 FB 或 LINE 私訊訂購人姓名給我們，以利確認訂單。'
+  };
+
+  emailjs.send('service_am4t6tg', 'template_order_confirm', templateParams)
+    .catch(function(err){ console.warn('EmailJS send failed:', err); });
+}
+</script>
+</body>
+</html>
